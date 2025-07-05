@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block content %}
@@ -47,7 +48,7 @@
 
                 <!-- Notices Grid -->
                 <div class="row g-4" id="notices-container">
-                    <!-- Urgent Notice -->
+                    <!-- Notices -->
                     {% for notice in notices %}
                         <div class="col-md-6 col-lg-4">
                         <div class="card notice-card {{ notice.category }}" data-category="{{ notice.category }}">
@@ -67,9 +68,32 @@
                         </div>
                     </div>
                     {% endfor %}
-
-                    <!-- Event Notice -->
                 </div>
+
+                <!-- Notices Pagination -->
+                {% if notices_pagination.total_pages > 1 %}
+                <div class="d-flex justify-content-center mt-4">
+                    <nav aria-label="Notices pagination">
+                        <ul class="pagination">
+                            <li class="page-item {% if notices_pagination.current_page == 1 %}disabled{% endif %}">
+                                <a class="page-link" href="?notice_page={{ notices_pagination.current_page - 1 }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% for page in range(1, notices_pagination.total_pages + 1) %}
+                            <li class="page-item {% if notices_pagination.current_page == page %}active{% endif %}">
+                                <a class="page-link" href="?notice_page={{ page }}">{{ page }}</a>
+                            </li>
+                            {% endfor %}
+                            <li class="page-item {% if notices_pagination.current_page == notices_pagination.total_pages %}disabled{% endif %}">
+                                <a class="page-link" href="?notice_page={{ notices_pagination.current_page + 1 }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
             </div>
 
             <!-- Legal Matters Tab -->
@@ -119,174 +143,197 @@
                         </div>
                     {% endfor %}
                 </div>
+
+                <!-- Legal Matters Pagination -->
+                {% if legal_pagination.total_pages > 1 %}
+                <div class="d-flex justify-content-center mt-4">
+                    <nav aria-label="Legal matters pagination">
+                        <ul class="pagination">
+                            <li class="page-item {% if legal_pagination.current_page == 1 %}disabled{% endif %}">
+                                <a class="page-link" href="?legal_page={{ legal_pagination.current_page - 1 }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% for page in range(1, legal_pagination.total_pages + 1) %}
+                            <li class="page-item {% if legal_pagination.current_page == page %}active{% endif %}">
+                                <a class="page-link" href="?legal_page={{ page }}">{{ page }}</a>
+                            </li>
+                            {% endfor %}
+                            <li class="page-item {% if legal_pagination.current_page == legal_pagination.total_pages %}disabled{% endif %}">
+                                <a class="page-link" href="?legal_page={{ legal_pagination.current_page + 1 }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
+                {% endif %}
+            </div>
 
             <!-- Financial Matters Tab -->
-
             <div class="tab-pane fade" id="financial-content" role="tabpanel">
-            <div class="row mb-4">
-            <div class="col-md-8">
-                <h2 class="h3"><i class="bi bi-cash-coin me-2"></i>Financial Overview</h2>
-                <p class="text-muted">View society's financial records and statements</p>
-            </div>
-{#            <div class="col-md-4 text-md-end">#}
-{#                <button class="btn btn-success">#}
-{#                    <i class="bi bi-plus-lg me-2"></i>Add Financial Record#}
-{#                </button>#}
-{#            </div>#}
-        </div>
-
-            <!-- Financial Sub-Tabs -->
-            <ul class="nav nav-pills mb-4" id="financialSubTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="society-fund-tab" data-bs-toggle="pill"
-                            data-bs-target="#society-fund" type="button" role="tab">
-                        Society Fund
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="maintenance-fund-tab" data-bs-toggle="pill"
-                            data-bs-target="#maintenance-fund" type="button" role="tab">
-                        Maintenance Fund
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="current-statement-tab" data-bs-toggle="pill"
-                            data-bs-target="#current-statement" type="button" role="tab">
-                        Current Month Statement
-                    </button>
-                </li>
-            </ul>
-
-            <!-- Financial Sub-Tab Contents -->
-            <div class="tab-content" id="financialSubTabContent">
-                <!-- Society Fund Tab -->
-
-                <div class="tab-pane fade show active" id="society-fund" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <p class="text-muted mb-3"><i class="bi bi-info-circle me-2"></i>Data shown for fiscal year: July 2024 to June 2025</p>
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Description</th>
-                                            <th>Credit</th>
-                                            <th>Debit</th>
-                                            <th>Balance</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for transaction in society_fund %}
-                                        <tr>
-                                            <td>{{ transaction.description }}</td>
-                                            <td class="text-success">{{ transaction.credit }}</td>
-                                            <td class="text-danger">{{ transaction.debit }}</td>
-                                            <td class="fw-bold">{{ transaction.balance }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <h2 class="h3"><i class="bi bi-cash-coin me-2"></i>Financial Overview</h2>
+                        <p class="text-muted">View society's financial records and statements</p>
                     </div>
+        {#            <div class="col-md-4 text-md-end">#}
+        {#                <button class="btn btn-success">#}
+        {#                    <i class="bi bi-plus-lg me-2"></i>Add Financial Record#}
+        {#                </button>#}
+        {#            </div>#}
                 </div>
 
-                <!-- Maintenance Fund Tab -->
-                <div class="tab-pane fade" id="maintenance-fund" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <p class="text-muted mb-3"><i class="bi bi-info-circle me-2"></i>Data shown for fiscal year: July 2024 to June 2025</p>
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Month</th>
-                                            <th>Collection</th>
-                                            <th>Expense</th>
-                                            <th>Balance</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for record in maintenance_fund %}
-                                        <tr>
-                                            <td>{{ record.month2 }}</td>
-                                            <td>{{ record.collection }}</td>
-                                            <td class="text-danger">
-                                                {{ record.expense }}
-                                            </td>
-                                            <td class="fw-bold">{{ record.balance }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Financial Sub-Tabs -->
+                <ul class="nav nav-pills mb-4" id="financialSubTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="society-fund-tab" data-bs-toggle="pill"
+                                data-bs-target="#society-fund" type="button" role="tab">
+                            Society Fund
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="maintenance-fund-tab" data-bs-toggle="pill"
+                                data-bs-target="#maintenance-fund" type="button" role="tab">
+                            Maintenance Fund
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="current-statement-tab" data-bs-toggle="pill"
+                                data-bs-target="#current-statement" type="button" role="tab">
+                            Current Month Statement
+                        </button>
+                    </li>
+                </ul>
 
-                <!-- Current Month Statement Tab -->
-                <div class="tab-pane fade" id="current-statement" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row mb-4">
-                                <div class="col-md-6">
-                                    <h5>Statement for: {{ current_month_year }}</h5>
+                <!-- Financial Sub-Tab Contents -->
+                <div class="tab-content" id="financialSubTabContent">
+                    <!-- Society Fund Tab -->
+
+                    <div class="tab-pane fade show active" id="society-fund" role="tabpanel">
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="text-muted mb-3"><i class="bi bi-info-circle me-2"></i>Data shown for fiscal year: July 2024 to June 2025</p>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Description</th>
+                                                <th>Credit</th>
+                                                <th>Debit</th>
+                                                <th>Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for transaction in society_fund %}
+                                            <tr>
+                                                <td>{{ transaction.description }}</td>
+                                                <td class="text-success">{{ transaction.credit }}</td>
+                                                <td class="text-danger">{{ transaction.debit }}</td>
+                                                <td class="fw-bold">{{ transaction.balance }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
                                 </div>
-<div class="col-md-6 text-md-end">
-    <a href="/static/documents/finance/current_statement.pdf"
-       class="btn btn-outline-primary btn-sm">
-        <i class="bi bi-download me-1"></i>Download Statement
-    </a>
-</div>
                             </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-{#                                            <th>Date</th>#}
-                                            <th>Particulars</th>
-                                            <th>Income</th>
-                                            <th>Expense</th>
-                                            <th>Balance</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for item in current_statement %}
-                                        <tr>
-{#                                            <td>{{ item.date }}</td>#}
-                                            <td>{{ item.particulars }}</td>
-                                            <td class="text-success">{{ item.income }}</td>
-                                            <td class="text-danger">{{ item.expense }}</td>
-                                            <td class="fw-bold">{{ item.balance }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                    <tfoot class="table-light">
-                                        <tr class="fw-bold">
-                                            <td colspan="1">Monthly Totals</td>
-                                            <td class="text-success">{{ monthly_totals.income }}</td>
-                                            <td class="text-danger">{{ monthly_totals.expense }}</td>
-                                            <td>{{ monthly_totals.balance }}</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
+                        </div>
+                    </div>
+
+                    <!-- Maintenance Fund Tab -->
+                    <div class="tab-pane fade" id="maintenance-fund" role="tabpanel">
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="text-muted mb-3"><i class="bi bi-info-circle me-2"></i>Data shown for fiscal year: July 2024 to June 2025</p>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Month</th>
+                                                <th>Collection</th>
+                                                <th>Expense</th>
+                                                <th>Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for record in maintenance_fund %}
+                                            <tr>
+                                                <td>{{ record.month2 }}</td>
+                                                <td>{{ record.collection }}</td>
+                                                <td class="text-danger">
+                                                    {{ record.expense }}
+                                                </td>
+                                                <td class="fw-bold">{{ record.balance }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Month Statement Tab -->
+                    <div class="tab-pane fade" id="current-statement" role="tabpanel">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <h5>Statement for: {{ current_month_year }}</h5>
+                                    </div>
+    <div class="col-md-6 text-md-end">
+        <a href="/static/documents/finance/current_statement.pdf"
+           class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-download me-1"></i>Download Statement
+        </a>
+    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+    {#                                            <th>Date</th>#}
+                                                <th>Particulars</th>
+                                                <th>Income</th>
+                                                <th>Expense</th>
+                                                <th>Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in current_statement %}
+                                            <tr>
+    {#                                            <td>{{ item.date }}</td>#}
+                                                <td>{{ item.particulars }}</td>
+                                                <td class="text-success">{{ item.income }}</td>
+                                                <td class="text-danger">{{ item.expense }}</td>
+                                                <td class="fw-bold">{{ item.balance }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot class="table-light">
+                                            <tr class="fw-bold">
+                                                <td colspan="1">Monthly Totals</td>
+                                                <td class="text-success">{{ monthly_totals.income }}</td>
+                                                <td class="text-danger">{{ monthly_totals.expense }}</td>
+                                                <td>{{ monthly_totals.balance }}</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-    </div>
 
             <!-- Society Documents Tab -->
             <div class="tab-pane fade" id="documents-content" role="tabpanel">
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <h2 class="h3"><i class="bi bi-file-earmark-text me-2"></i>Society Documents</h2>
-                    <p class="text-muted">Access important society documents and laws</p>
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <h2 class="h3"><i class="bi bi-file-earmark-text me-2"></i>Society Documents</h2>
+                        <p class="text-muted">Access important society documents and laws</p>
+                    </div>
                 </div>
-
-        </div>
 
                 <!-- Documents List -->
                 <div class="card">
@@ -314,8 +361,89 @@
                         {% endfor %}
                     </div>
                 </div>
-        </div>
 
+                <!-- Documents Pagination -->
+                {% if docs_pagination.total_pages > 1 %}
+                <div class="d-flex justify-content-center mt-4">
+                    <nav aria-label="Documents pagination">
+                        <ul class="pagination">
+                            <li class="page-item {% if docs_pagination.current_page == 1 %}disabled{% endif %}">
+                                <a class="page-link" href="?doc_page={{ docs_pagination.current_page - 1 }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% for page in range(1, docs_pagination.total_pages + 1) %}
+                            <li class="page-item {% if docs_pagination.current_page == page %}active{% endif %}">
+                                <a class="page-link" href="?doc_page={{ page }}">{{ page }}</a>
+                            </li>
+                            {% endfor %}
+                            <li class="page-item {% if docs_pagination.current_page == docs_pagination.total_pages %}disabled{% endif %}">
+                                <a class="page-link" href="?doc_page={{ docs_pagination.current_page + 1 }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </main>
+
+    <!-- Add JavaScript for tab-aware pagination -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle tab-aware pagination
+        const urlParams = new URLSearchParams(window.location.search);
+        const noticeTab = document.getElementById('notices-tab');
+        const legalTab = document.getElementById('legal-tab');
+        const documentsTab = document.getElementById('documents-tab');
+
+        // Ensure pagination links keep the active tab
+        const paginationLinks = document.querySelectorAll('.pagination .page-link');
+        paginationLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Get the current active tab
+                let activeTabId;
+                if (noticeTab.classList.contains('active')) {
+                    activeTabId = 'notices';
+                } else if (legalTab.classList.contains('active')) {
+                    activeTabId = 'legal';
+                } else if (documentsTab.classList.contains('active')) {
+                    activeTabId = 'documents';
+                }
+
+                // Build the new URL with tab context
+                const href = this.getAttribute('href');
+                const newParams = new URLSearchParams(href);
+
+                // Preserve other pagination parameters
+                if (activeTabId !== 'notices' && urlParams.has('notice_page')) {
+                    newParams.set('notice_page', urlParams.get('notice_page'));
+                }
+                if (activeTabId !== 'legal' && urlParams.has('legal_page')) {
+                    newParams.set('legal_page', urlParams.get('legal_page'));
+                }
+                if (activeTabId !== 'documents' && urlParams.has('doc_page')) {
+                    newParams.set('doc_page', urlParams.get('doc_page'));
+                }
+
+                // Navigate to the new URL
+                window.location.href = '?' + newParams.toString() + '#' + activeTabId;
+            });
+        });
+
+        // Set active tab based on URL hash if present
+        const hash = window.location.hash.substring(1);
+        if (hash === 'legal') {
+            const legalTabButton = new bootstrap.Tab(legalTab);
+            legalTabButton.show();
+        } else if (hash === 'documents') {
+            const documentsTabButton = new bootstrap.Tab(documentsTab);
+            documentsTabButton.show();
+        }
+    });
+    </script>
 {% endblock %}
