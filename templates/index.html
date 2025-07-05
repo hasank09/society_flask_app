@@ -36,12 +36,12 @@
                 <!-- Notice Categories -->
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="d-flex flex-wrap gap-2">
-                            <button class="btn btn-outline-primary active" data-filter="all">All Notices</button>
-                            <button class="btn btn-outline-danger" data-filter="urgent">Urgent</button>
-                            <button class="btn btn-outline-success" data-filter="event">Events</button>
-                            <button class="btn btn-outline-warning" data-filter="maintenance">Maintenance</button>
-                            <button class="btn btn-outline-info" data-filter="general">General</button>
+                        <div class="d-flex flex-wrap gap-2" id="notice-category-filters">
+                            <a href="?notice_category=all" class="btn btn-outline-primary {% if notice_category == 'all' %}active{% endif %}" data-category="all">All Notices</a>
+                            <a href="?notice_category=urgent" class="btn btn-outline-danger {% if notice_category == 'urgent' %}active{% endif %}" data-category="urgent">Urgent</a>
+                            <a href="?notice_category=event" class="btn btn-outline-success {% if notice_category == 'event' %}active{% endif %}" data-category="event">Events</a>
+                            <a href="?notice_category=maintenance" class="btn btn-outline-warning {% if notice_category == 'maintenance' %}active{% endif %}" data-category="maintenance">Maintenance</a>
+                            <a href="?notice_category=general" class="btn btn-outline-info {% if notice_category == 'general' %}active{% endif %}" data-category="general">General</a>
                         </div>
                     </div>
                 </div>
@@ -76,17 +76,17 @@
                     <nav aria-label="Notices pagination">
                         <ul class="pagination">
                             <li class="page-item {% if notices_pagination.current_page == 1 %}disabled{% endif %}">
-                                <a class="page-link" href="?notice_page={{ notices_pagination.current_page - 1 }}" aria-label="Previous">
+                                <a class="page-link" href="?notice_page={{ notices_pagination.current_page - 1 }}&notice_category={{ notice_category }}" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                 </a>
                             </li>
                             {% for page in range(1, notices_pagination.total_pages + 1) %}
                             <li class="page-item {% if notices_pagination.current_page == page %}active{% endif %}">
-                                <a class="page-link" href="?notice_page={{ page }}">{{ page }}</a>
+                                <a class="page-link" href="?notice_page={{ page }}&notice_category={{ notice_category }}">{{ page }}</a>
                             </li>
                             {% endfor %}
                             <li class="page-item {% if notices_pagination.current_page == notices_pagination.total_pages %}disabled{% endif %}">
-                                <a class="page-link" href="?notice_page={{ notices_pagination.current_page + 1 }}" aria-label="Next">
+                                <a class="page-link" href="?notice_page={{ notices_pagination.current_page + 1 }}&notice_category={{ notice_category }}" aria-label="Next">
                                     <span aria-hidden="true">&raquo;</span>
                                 </a>
                             </li>
@@ -108,11 +108,11 @@
                 <!-- Legal Matter Categories -->
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="d-flex flex-wrap gap-2">
-                            <button class="btn btn-outline-primary active" data-legal-filter="all">All Cases</button>
-                            <button class="btn btn-outline-warning" data-legal-filter="pending">Pending</button>
-                            <button class="btn btn-outline-info" data-legal-filter="in-progress">In Progress</button>
-                            <button class="btn btn-outline-success" data-legal-filter="resolved">Resolved</button>
+                        <div class="d-flex flex-wrap gap-2" id="legal-status-filters">
+                            <a href="?legal_status=all" class="btn btn-outline-primary {% if legal_status == 'all' %}active{% endif %}" data-legal-filter="all">All Cases</a>
+                            <a href="?legal_status=pending" class="btn btn-outline-warning {% if legal_status == 'pending' %}active{% endif %}" data-legal-filter="pending">Pending</a>
+                            <a href="?legal_status=in-progress" class="btn btn-outline-info {% if legal_status == 'in-progress' %}active{% endif %}" data-legal-filter="in-progress">In Progress</a>
+                            <a href="?legal_status=resolved" class="btn btn-outline-success {% if legal_status == 'resolved' %}active{% endif %}" data-legal-filter="resolved">Resolved</a>
                         </div>
                     </div>
                 </div>
@@ -150,17 +150,17 @@
                     <nav aria-label="Legal matters pagination">
                         <ul class="pagination">
                             <li class="page-item {% if legal_pagination.current_page == 1 %}disabled{% endif %}">
-                                <a class="page-link" href="?legal_page={{ legal_pagination.current_page - 1 }}" aria-label="Previous">
+                                <a class="page-link" href="?legal_page={{ legal_pagination.current_page - 1 }}&legal_status={{ legal_status }}" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                 </a>
                             </li>
                             {% for page in range(1, legal_pagination.total_pages + 1) %}
                             <li class="page-item {% if legal_pagination.current_page == page %}active{% endif %}">
-                                <a class="page-link" href="?legal_page={{ page }}">{{ page }}</a>
+                                <a class="page-link" href="?legal_page={{ page }}&legal_status={{ legal_status }}">{{ page }}</a>
                             </li>
                             {% endfor %}
                             <li class="page-item {% if legal_pagination.current_page == legal_pagination.total_pages %}disabled{% endif %}">
-                                <a class="page-link" href="?legal_page={{ legal_pagination.current_page + 1 }}" aria-label="Next">
+                                <a class="page-link" href="?legal_page={{ legal_pagination.current_page + 1 }}&legal_status={{ legal_status }}" aria-label="Next">
                                     <span aria-hidden="true">&raquo;</span>
                                 </a>
                             </li>
@@ -390,50 +390,96 @@
         </div>
     </main>
 
-    <!-- Add JavaScript for tab-aware pagination -->
+    <!-- Add JavaScript for tab-aware pagination and filtering -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle tab-aware pagination
+        // Get current URL parameters
         const urlParams = new URLSearchParams(window.location.search);
+
+        // Handle tab-aware pagination and filtering
         const noticeTab = document.getElementById('notices-tab');
         const legalTab = document.getElementById('legal-tab');
         const documentsTab = document.getElementById('documents-tab');
 
-        // Ensure pagination links keep the active tab
-        const paginationLinks = document.querySelectorAll('.pagination .page-link');
-        paginationLinks.forEach(link => {
+        // Function to preserve parameters when changing tabs
+        function preserveParams(targetTabId) {
+            // Get all pagination and filtering links
+            const allLinks = document.querySelectorAll('a.page-link, #notice-category-filters a, #legal-status-filters a');
+
+            allLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Get the current active tab
+                    let activeTabId;
+                    if (noticeTab.classList.contains('active')) {
+                        activeTabId = 'notices';
+                    } else if (legalTab.classList.contains('active')) {
+                        activeTabId = 'legal';
+                    } else if (documentsTab.classList.contains('active')) {
+                        activeTabId = 'documents';
+                    }
+
+                    // If we're not on the target tab, don't modify the URL
+                    if (targetTabId && activeTabId !== targetTabId) {
+                        return;
+                    }
+
+                    // Build the new URL with all parameters
+                    const href = this.getAttribute('href');
+                    const newParams = new URLSearchParams(href);
+
+                    // Preserve parameters from current URL except for the ones being changed
+                    for (const [key, value] of urlParams.entries()) {
+                        if (!newParams.has(key)) {
+                            newParams.set(key, value);
+                        }
+                    }
+
+                    // Navigate to the new URL
+                    window.location.href = '?' + newParams.toString() + (activeTabId ? '#' + activeTabId : '');
+                });
+            });
+        }
+
+        // Setup the notice category filter links
+        const noticeCategoryLinks = document.querySelectorAll('#notice-category-filters a');
+        noticeCategoryLinks.forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
 
-                // Get the current active tab
-                let activeTabId;
-                if (noticeTab.classList.contains('active')) {
-                    activeTabId = 'notices';
-                } else if (legalTab.classList.contains('active')) {
-                    activeTabId = 'legal';
-                } else if (documentsTab.classList.contains('active')) {
-                    activeTabId = 'documents';
-                }
+                const category = this.getAttribute('data-category');
+                const newParams = new URLSearchParams(window.location.search);
 
-                // Build the new URL with tab context
-                const href = this.getAttribute('href');
-                const newParams = new URLSearchParams(href);
+                // Update category and reset page number
+                newParams.set('notice_category', category);
+                newParams.set('notice_page', '1');
 
-                // Preserve other pagination parameters
-                if (activeTabId !== 'notices' && urlParams.has('notice_page')) {
-                    newParams.set('notice_page', urlParams.get('notice_page'));
-                }
-                if (activeTabId !== 'legal' && urlParams.has('legal_page')) {
-                    newParams.set('legal_page', urlParams.get('legal_page'));
-                }
-                if (activeTabId !== 'documents' && urlParams.has('doc_page')) {
-                    newParams.set('doc_page', urlParams.get('doc_page'));
-                }
-
-                // Navigate to the new URL
-                window.location.href = '?' + newParams.toString() + '#' + activeTabId;
+                // Navigate to filtered view
+                window.location.href = '?' + newParams.toString() + '#notices';
             });
         });
+
+        // Setup the legal status filter links
+        const legalStatusLinks = document.querySelectorAll('#legal-status-filters a');
+        legalStatusLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const status = this.getAttribute('data-legal-filter');
+                const newParams = new URLSearchParams(window.location.search);
+
+                // Update status and reset page number
+                newParams.set('legal_status', status);
+                newParams.set('legal_page', '1');
+
+                // Navigate to filtered view
+                window.location.href = '?' + newParams.toString() + '#legal';
+            });
+        });
+
+        // Ensure pagination links keep the active tab and filters
+        preserveParams();
 
         // Set active tab based on URL hash if present
         const hash = window.location.hash.substring(1);
