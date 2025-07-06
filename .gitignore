@@ -1,2 +1,13 @@
 /templates/testing_page.html
 /templates/Finance_old.html
+/testing sample/migrate_csv_to_postgres.py
+/testing sample/data_base_testing.ipynb
+/testing sample/data_validity_current_month.ipynb
+/testing sample/data_validity_documents.ipynb
+/testing sample/data_validity_legal.ipynb
+/testing sample/data_validity_maintenance_funds.ipynb
+/testing sample/data_validity_monthly_totals.ipynb
+/testing sample/data_validity_notice.ipynb
+/testing sample/data_validity_socitey_funds.ipynb
+/testing sample/socitey_data.py
+/record_manupulation/raw_data.txt

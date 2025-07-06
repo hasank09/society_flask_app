@@ -1,81 +1,183 @@
-import pandas as pd
+# socitey_data.py
+from sqlalchemy.orm import Session
+from db_config import engine
+from models import Notice, LegalMatter, Document, SocietyFund, MaintenanceFund, CurrentStatement
+from datetime import datetime
+
 
 def clean_html_tags(text):
-    tags = ['<p>', '</p>', '<br>', '<strong>', '</strong>', '<em>', '</em>','<ul>','</ul>','<li>','</li>',
-            '<h1>','</h1>','<h2>','</h2>','<h3>','</h3>','<h4>','</h4>','<h5>','</h5>','<h6>','</h6>']
+    tags = ['<p>', '</p>', '<br>', '<strong>', '</strong>', '<em>', '</em>', '<ul>', '</ul>', '<li>', '</li>',
+            '<h1>', '</h1>', '<h2>', '</h2>', '<h3>', '</h3>', '<h4>', '</h4>', '<h5>', '</h5>', '<h6>', '</h6>']
     for tag in tags:
         text = text.replace(tag, '')
     return text
 
+
 def get_all_notices():
-    notices_df = pd.read_csv('static/data/notices.csv', parse_dates=['date'])
-    notices_df['date2'] = notices_df['date'].dt.strftime('%b %d, %Y')
-    notices_df.sort_values('date', ascending=False, inplace=True)
-    level = {'urgent': 'danger', 'event': 'success', 'maintenance': 'warning', 'general': 'info'}
-    notices_df['category'] = notices_df['category'].str.lower()
-    notices_df['level'] = notices_df['category'].map(level)
-    notices_df['level'] =  notices_df['level'].fillna('info')
-    notices_df['content'] = '...' + notices_df['full_notice_u'].str[:200]
-    notices_df['content'] = notices_df['content'].apply(clean_html_tags)
-    # notices_df['category'] = notices_df['category'].str.upper()
-    all_notices = notices_df.to_dict('records')
-    return all_notices
+    with Session(engine) as session:
+        notices = session.query(Notice).all()
+
+        notices_list = []
+        for notice in notices:
+            level = {'urgent': 'danger', 'event': 'success', 'maintenance': 'warning', 'general': 'info'}
+
+            notice_dict = {
+                'notice_id': notice.notice_id,
+                'title': notice.title,
+                'description': notice.description,
+                'date': notice.date,
+                'date2': notice.date.strftime('%b %d, %Y'),
+                'posted_by': notice.posted_by,
+                'category': notice.category.lower(),
+                'level': level.get(notice.category.lower(), 'info'),
+                'full_notice_u': notice.full_notice_u,
+                'full_notice_e': notice.full_notice_e,
+                'content':  clean_html_tags(notice.full_notice_u[:200]) + '...'
+            }
+            notices_list.append(notice_dict)
+
+        # Sort by date descending
+        notices_list.sort(key=lambda x: x['date'], reverse=True)
+        return notices_list
+
 
 def get_all_legal_matters():
-    legal_df = pd.read_csv('static/data/legal.csv', parse_dates=['filing_date'])
-    legal_df['date2'] = legal_df['filing_date'].dt.strftime('%b %d, %Y')
-    legal_df.sort_values('date2', ascending=False, inplace=True)
-    priority = {'urgent': 'danger', 'resolved': 'success', 'pending': 'warning', 'in-progress': 'info'}
-    legal_df['status'] = legal_df['status'].str.lower()
-    legal_df['priority'] = legal_df['status'].map(priority)
-    legal_df['priority'] =  legal_df['priority'].fillna('info')
-    legal_df['suit_money_2'] = legal_df['suit_money'].apply(lambda x: '{:,.2f}'.format(x))
-    all_legal_matters = legal_df.to_dict('records')
-    return all_legal_matters
+    with Session(engine) as session:
+        legal_matters = session.query(LegalMatter).all()
+
+        legal_list = []
+        for legal in legal_matters:
+            priority = {'urgent': 'danger', 'resolved': 'success', 'pending': 'warning', 'in-progress': 'info'}
+
+            legal_dict = {
+                'legal_id': legal.legal_id,
+                'case_id': legal.case_id,
+                'title': legal.title,
+                'case_type': legal.case_type,
+                'status': legal.status.lower(),
+                'filing_date': legal.filing_date,
+                'date2': legal.filing_date.strftime('%b %d, %Y'),
+                'priority': priority.get(legal.status.lower(), 'info'),
+                'description': legal.description,
+                'full_notice_u': legal.full_notice_u,
+                'full_notice_e': legal.full_notice_e,
+                'suit_money': legal.suit_money,
+                'suit_money_2': '{:,.2f}'.format(legal.suit_money)
+            }
+            legal_list.append(legal_dict)
+
+        # Sort by date descending
+        legal_list.sort(key=lambda x: x['date2'], reverse=True)
+        return legal_list
+
 
 def get_all_documents():
-    doc_df = pd.read_csv('static/data/documents.csv', parse_dates=['date_added'])
-    doc_df['date2'] = doc_df['date_added'].dt.strftime('%b %d, %Y')
-    doc_df.sort_values('date2',ascending=False,inplace=True)
-    docs = doc_df.to_dict('records')
+    with Session(engine) as session:
+        documents = session.query(Document).all()
 
-    return docs
+        doc_list = []
+        for doc in documents:
+            doc_dict = {
+                'document_id': doc.document_id,
+                'title': doc.title,
+                'date_added': doc.date_added,
+                'date2': doc.date_added.strftime('%b %d, %Y'),
+                'file_url': doc.file_url
+            }
+            doc_list.append(doc_dict)
+
+        # Sort by date descending
+        doc_list.sort(key=lambda x: x['date2'], reverse=True)
+        return doc_list
+
 
 def get_society_fund():
-    society_df = pd.read_csv('static/data/society_fund.csv')
-    society_df.loc[len(society_df)] = ['Total',society_df['credit'].sum(),society_df['debit'].sum(),
-                                       society_df['balance'].sum()]
-    society_fund = society_df.to_dict('records')
-    return society_fund
+    with Session(engine) as session:
+        funds = session.query(SocietyFund).all()
+
+        fund_list = []
+        for fund in funds:
+            fund_dict = {
+                'description': fund.description,
+                'credit': fund.credit,
+                'debit': fund.debit,
+                'balance': fund.balance
+            }
+            fund_list.append(fund_dict)
+
+        # Add the total row
+        total_credit = sum(fund.credit for fund in funds)
+        total_debit = sum(fund.debit for fund in funds)
+        total_balance = sum(fund.balance for fund in funds)
+
+        fund_list.append({
+            'description': 'Total',
+            'credit': total_credit,
+            'debit': total_debit,
+            'balance': total_balance
+        })
+
+        return fund_list
+
 
 def get_maintenance_fund():
-    maintenance_df = pd.read_csv('static/data/maintenance_fund.csv', parse_dates=['month'])
-    maintenance_df['month2'] = maintenance_df['month'].dt.strftime('%b-%Y')
-    maintenance_df.sort_values('month', ascending=True, inplace=True)
-    maintenance_fund = maintenance_df.to_dict('records')
-    return maintenance_fund
+    with Session(engine) as session:
+        maintenance = session.query(MaintenanceFund).all()
+
+        maintenance_list = []
+        for item in maintenance:
+            maint_dict = {
+                'month': item.month,
+                'month2': item.month.strftime('%b-%Y'),
+                'collection': item.collection,
+                'expense': item.expense,
+                'balance': item.balance
+            }
+            maintenance_list.append(maint_dict)
+
+        # Sort by month ascending
+        maintenance_list.sort(key=lambda x: x['month'])
+        return maintenance_list
 
 
 def get_current_statement():
-    month_df = pd.read_csv('static/data/current_statement.csv')
-    month_statement = month_df.to_dict('records')
-    return month_statement
+    with Session(engine) as session:
+        statements = session.query(CurrentStatement).all()
+
+        statement_list = []
+        for statement in statements:
+            statement_dict = {
+                'particulars': statement.particulars,
+                'income': statement.income,
+                'expense': statement.expense,
+                'balance': statement.balance
+            }
+            statement_list.append(statement_dict)
+
+        return statement_list
+
 
 def get_monthly_totals():
-    month_df = pd.read_csv('static/data/current_statement.csv')
-    monthly_totals = {'income': month_df['income'].sum(),
-                      'expense': month_df['expense'].sum(),
-                      'balance': month_df['income'].sum() - month_df['expense'].sum()}
-    return monthly_totals
+    with Session(engine) as session:
+        statements = session.query(CurrentStatement).all()
 
+        total_income = sum(statement.income for statement in statements)
+        total_expense = sum(statement.expense for statement in statements)
+
+        monthly_totals = {
+            'income': total_income,
+            'expense': total_expense,
+            'balance': total_income - total_expense
+        }
+
+        return monthly_totals
 
 
 if __name__ == '__main__':
-    # all_data = get_all_notices()
+    # all_data = get_current_statement()
+    all_data = get_all_notices()
     # all_data = get_all_legal_matters()
-    all_data = get_current_statement()
     for data in all_data:
-        print(data)
-    # notice_id = 3
-    # notice = next((notice for notice in notices if notice['notice_id'] == notice_id), None)
-    # print(notice)
+
+        print(data.keys())
+        print(data['content'])

@@ -1,3 +1,7 @@
-﻿legal_id,case_id,title,description,status,case_type,priority,filing_date,suit_money
-1,LC001,Property Boundary Dispute,Dispute regarding property boundaries with neighboring society,pending,Property,warning,6/1/2024,1000000
-2,LC002,Building Approval Case,Approval pending for additional floor construction,in-progress,Construction,info,6/1/2023,3000000
+﻿legal_id,case_id,title,description,status,case_type,priority,filing_date,suit_money,full_notice_e,full_notice_u
+1,LC001,Property Boundary Dispute,Dispute regarding property boundaries with neighboring society,pending,Property,warning,6/1/2024,1000000,"Full Notice English 
+Testing -1","Full Notice Urdu 
+Testing -1"
+2,LC002,Building Approval Case,Approval pending for additional floor construction,in-progress,Construction,info,6/1/2023,3000000,"Full Notice English 
+Testing -2","Full Notice Urdu 
+Testing -2"

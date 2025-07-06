@@ -58,7 +58,7 @@
                                     <small class="text-muted">{{ notice.date2 }}</small>
                                 </div>
                                 <h5 class="card-title">{{ notice.title}}</h5>
-                                <p class="card-text">{{ notice.content }}</p>
+                                <p class="card-text">{{ notice.description }}</p>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <small class="text-muted">Posted by: {{ notice.posted_by }}</small>
                                     <a href="{{ url_for('notice_detail', notice_id=notice.notice_id) }}"
