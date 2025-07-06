@@ -98,3 +98,12 @@ body {
 main {
     flex: 1;
 }
+.large-text-u {
+    font-size: 1.15rem; /* Adjust this value as needed */
+    line-height: 1.5;   /* Improve readability with increased line height */
+}
+
+.large-text-e {
+    font-size: 1.0rem; /* Adjust this value as needed */
+    line-height: 1.5;   /* Improve readability with increased line height */
+}
