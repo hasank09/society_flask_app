@@ -129,11 +129,15 @@
                                     </div>
                                     <h5 class="card-title">{{ legal.title }}</h5>
                                     <p class="card-text">{{ legal.description|e|replace('\n', '<br>')|safe }}</p>
-                                    <p class="card-text">Amount: {{ legal.suit_money_2 }} Rs </p>
+                                    <p class="card-text">{% if legal.suit_money > 0 %}
+                                                                   Amount:  {{ legal.suit_money_2 }}Rs
+                                                                {% else %}
+                                                                    <br>
+                                                                {% endif %}</p>
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <span class="badge bg-secondary">{{ legal.status|title }}</span>
-                                            <small class="text-muted ms-2">Filed: {{ legal.date2 }}</small>
+                                            <small class="text-muted ms-2">Dated: {{ legal.date2 }}</small>
                                         </div>
                                         <a href="{{ url_for('legal_detail', legal_id=legal.legal_id) }}"
                                            class="btn btn-outline-primary btn-sm">View Details</a>

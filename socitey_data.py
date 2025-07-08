@@ -67,7 +67,7 @@ def get_all_legal_matters():
             legal_list.append(legal_dict)
 
         # Sort by date descending
-        legal_list.sort(key=lambda x: x['date2'], reverse=True)
+        legal_list.sort(key=lambda x: x['filing_date'], reverse=True)
         return legal_list
 
 
@@ -87,7 +87,7 @@ def get_all_documents():
             doc_list.append(doc_dict)
 
         # Sort by date descending
-        doc_list.sort(key=lambda x: x['date2'], reverse=True)
+        doc_list.sort(key=lambda x: x['date_added'], reverse=True)
         return doc_list
 
 
@@ -175,9 +175,8 @@ def get_monthly_totals():
 
 if __name__ == '__main__':
     # all_data = get_current_statement()
-    all_data = get_all_notices()
-    # all_data = get_all_legal_matters()
+    # all_data = get_all_notices()
+    all_data = get_all_legal_matters()
     for data in all_data:
+        print(data['filing_date'],'>>',data['date2'])
 
-        print(data.keys())
-        print(data['content'])
