@@ -27,7 +27,7 @@ cached_data = {
 }
 
 # Cache configuration
-CACHE_REFRESH_INTERVAL = 600    #7200  # 2 hours in seconds
+CACHE_REFRESH_INTERVAL = 7200  # 2 hours in seconds
 ITEMS_PER_PAGE = 6
 cache_lock = threading.Lock()  # To prevent race conditions during cache updates
 

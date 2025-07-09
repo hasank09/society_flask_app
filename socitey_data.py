@@ -189,9 +189,12 @@ def get_monthly_totals():
 if __name__ == '__main__':
     # all_data = get_current_statement()
     # all_data = get_all_notices()
-    all_data = get_all_legal_matters()
-    all_data = get_all_documents()
+    # all_data = get_all_legal_matters()
+    # all_data = get_all_documents()
+    all_data = get_maintenance_fund()
     for data in all_data:
     #     print(data['legal_id'],data['full_notice_e'])
-        print(data['file_url'])
+    #     print(data['file_url'])
+        print(data)
+    print(all_data[0]['month'].year,all_data[-1]['month'].year)
 
