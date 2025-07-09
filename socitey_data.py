@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from db_config import engine
 from models import Notice, LegalMatter, Document, SocietyFund, MaintenanceFund, CurrentStatement
 from datetime import datetime
-from aws_s3 import double_render,refresh_s3_link
-from jinja2 import Template
+from aws_s3 import refresh_s3_link
+
 
 
 

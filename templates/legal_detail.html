@@ -12,7 +12,7 @@
                             <span class="badge bg-{{ case.priority }}">{{ case.status|upper }}</span>
                             <small class="text-muted">Filling Date: {{ case.date2 }}</small>
                         </div>
-                        <h2 class="card-title mb-3">{{ case.title }}</h2>
+                        <h2 class="card-title mb-3"><u>{{ case.title }}</u></h2>
 <!--                        <p class="card-text large-text-u">{{ case.full_notice_u|replace('\n', '<br>')|safe }}</p>-->
                         {{ case.full_notice_u|safe}}
                         <hr>

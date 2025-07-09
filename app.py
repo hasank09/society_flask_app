@@ -7,19 +7,53 @@ from datetime import datetime
 from math import ceil
 import os
 import time
+import threading
 
 from aws_s3 import refresh_s3_link, double_render
 from jinja2 import Template
 
-
-
-
-
 app = Flask(__name__)
 
-APP_START_TIME = time.time()
-FIRST_RUN = True
+# Cache variables
+cached_data = {
+    'notices': None,
+    'legal_cases': None,
+    'society_documents': None,
+    'society_fund': None,
+    'maintenance_fund': None,
+    'current_statement': None,
+    'monthly_totals': None,
+    'last_refresh': 0  # Timestamp of last refresh
+}
+
+# Cache configuration
+CACHE_REFRESH_INTERVAL = 600    #7200  # 2 hours in seconds
 ITEMS_PER_PAGE = 6
+cache_lock = threading.Lock()  # To prevent race conditions during cache updates
+
+
+def should_refresh_cache():
+    """Check if cache needs to be refreshed based on time interval"""
+    current_time = time.time()
+    return (current_time - cached_data['last_refresh']) > CACHE_REFRESH_INTERVAL or cached_data['notices'] is None
+
+
+def refresh_cache():
+    """Refresh all cached data"""
+    with cache_lock:
+        if not should_refresh_cache():
+            return  # Another thread might have refreshed while we were waiting for the lock
+
+        print("Refreshing cache...")
+        cached_data['notices'] = get_all_notices()
+        cached_data['legal_cases'] = get_all_legal_matters()
+        cached_data['society_documents'] = get_all_documents()
+        cached_data['society_fund'] = get_society_fund()
+        cached_data['maintenance_fund'] = get_maintenance_fund()
+        cached_data['current_statement'] = get_current_statement()
+        cached_data['monthly_totals'] = get_monthly_totals()
+        cached_data['last_refresh'] = time.time()
+        print("Cache refreshed successfully")
 
 
 def paginate_data(data, page=1, per_page=ITEMS_PER_PAGE):
@@ -54,15 +88,21 @@ def filter_legal_by_status(data, status):
 
 @app.route('/')
 def home():
+    # Check if cache needs refreshing
+    if should_refresh_cache():
+        # Start a background thread to refresh cache to avoid blocking the request
+        refresh_thread = threading.Thread(target=refresh_cache)
+        refresh_thread.daemon = True
+        refresh_thread.start()
 
-    # Get data from data source
-    notices = get_all_notices()
-    legal_cases = get_all_legal_matters()
-    society_documents = get_all_documents()
-    society_fund = get_society_fund()
-    maintenance_fund = get_maintenance_fund()
-    current_statement = get_current_statement()
-    monthly_totals = get_monthly_totals()
+    # Use cached data (if cache is being refreshed, we'll use the old cache for this request)
+    notices = cached_data['notices'] or []
+    legal_cases = cached_data['legal_cases'] or []
+    society_documents = cached_data['society_documents'] or []
+    society_fund = cached_data['society_fund'] or []
+    maintenance_fund = cached_data['maintenance_fund'] or []
+    current_statement = cached_data['current_statement'] or []
+    monthly_totals = cached_data['monthly_totals'] or {'income': 0, 'expense': 0, 'balance': 0}
 
     # Get pagination and filtering parameters
     notice_page = int(request.args.get('notice_page', 1))
@@ -100,7 +140,11 @@ def home():
 
 @app.route('/notice/<int:notice_id>')
 def notice_detail(notice_id):
-    notices = get_all_notices()
+    # Ensure cache is initialized
+    if cached_data['notices'] is None:
+        refresh_cache()
+
+    notices = cached_data['notices']
     notice = next((notice for notice in notices if notice['notice_id'] == notice_id), None)
     if notice:
         return render_template('notice_detail.html', notice=notice,
@@ -110,17 +154,30 @@ def notice_detail(notice_id):
 
 @app.route('/legal/<int:legal_id>')
 def legal_detail(legal_id):
-    legal_cases = get_all_legal_matters()
+    # Ensure cache is initialized
+    if cached_data['legal_cases'] is None:
+        refresh_cache()
+
+    legal_cases = cached_data['legal_cases']
     case = next((case for case in legal_cases if case['legal_id'] == legal_id), None)
 
-    case['full_notice_u'] = refresh_s3_link(case['full_notice_u'])
-    case['full_notice_e'] = refresh_s3_link(case['full_notice_e'])
-
     if case:
-        return render_template('legal_detail.html', case=case,
+        # These S3 links might expire, so refresh them for detail pages
+        case_copy = case.copy()  # Create a copy to avoid modifying the cached version
+        case_copy['full_notice_u'] = refresh_s3_link(case['full_notice_u'])
+        case_copy['full_notice_e'] = refresh_s3_link(case['full_notice_e'])
+
+        return render_template('legal_detail.html', case=case_copy,
                                year=datetime.now().year)
     return 'Legal case not found', 404
 
 
+# # Initialize cache when app starts
+# @app.before_first_request
+# def initialize_cache():
+#     refresh_cache()
+
+
 if __name__ == '__main__':
+    refresh_cache()
     app.run(debug=True, host='0.0.0.0', port=5000)

@@ -56,7 +56,7 @@
                                     <span class="badge bg-{{ notice.level }}">{{ notice.category|upper}}</span>
                                     <small class="text-muted">{{ notice.date2 }}</small>
                                 </div>
-                                <h5 class="card-title">{{ notice.title}}</h5>
+                                <h5 class="card-title"><u>{{ notice.title}}</u></h5>
                                 <p class="card-text">{{ notice.description }}</p>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <small class="text-muted">Posted by: {{ notice.posted_by }}</small>
@@ -126,7 +126,7 @@
                                         <span class="badge bg-{{ legal.priority }}">{{ legal.case_type }}</span>
                                         <small class="text-muted">Case ID: {{ legal.case_id }}</small>
                                     </div>
-                                    <h5 class="card-title">{{ legal.title }}</h5>
+                                    <h5 class="card-title"><u>{{ legal.title }}</u></h5>
                                     <p class="card-text">{{ legal.description|e|replace('\n', '<br>')|safe }}</p>
                                     <p class="card-text">{% if legal.suit_money > 0 %}
                                                                    Amount:  {{ legal.suit_money_2 }}Rs
