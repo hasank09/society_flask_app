@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 from db_config import engine
 from models import Notice, LegalMatter, Document, SocietyFund, MaintenanceFund, CurrentStatement
 from datetime import datetime
+from aws_s3 import double_render,refresh_s3_link
+from jinja2 import Template
+
 
 
 def clean_html_tags(text):
@@ -34,6 +37,7 @@ def get_all_notices():
                 'full_notice_e': notice.full_notice_e,
                 'content':  clean_html_tags(notice.full_notice_u[:200]) + '...'
             }
+
             notices_list.append(notice_dict)
 
         # Sort by date descending
@@ -64,6 +68,13 @@ def get_all_legal_matters():
                 'suit_money': legal.suit_money,
                 'suit_money_2': '{:,.2f}'.format(legal.suit_money)
             }
+
+            # pre-rendering Urdu Version
+            legal_dict['full_notice_u'] = refresh_s3_link(legal_dict['full_notice_u'])
+
+            # pre-rendering English Version
+            legal_dict['full_notice_e'] = refresh_s3_link(legal_dict['full_notice_e'])
+
             legal_list.append(legal_dict)
 
         # Sort by date descending
@@ -84,6 +95,8 @@ def get_all_documents():
                 'date2': doc.date_added.strftime('%b %d, %Y'),
                 'file_url': doc.file_url
             }
+            if 'get_s3url' in doc_dict['file_url']:
+                doc_dict['file_url'] = refresh_s3_link(doc_dict['file_url'])
             doc_list.append(doc_dict)
 
         # Sort by date descending
@@ -177,6 +190,8 @@ if __name__ == '__main__':
     # all_data = get_current_statement()
     # all_data = get_all_notices()
     all_data = get_all_legal_matters()
+    all_data = get_all_documents()
     for data in all_data:
-        print(data['filing_date'],'>>',data['date2'])
+    #     print(data['legal_id'],data['full_notice_e'])
+        print(data['file_url'])
 

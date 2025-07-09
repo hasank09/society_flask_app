@@ -5,9 +5,20 @@ from socitey_data import get_society_fund, get_maintenance_fund, get_current_sta
 
 from datetime import datetime
 from math import ceil
+import os
+import time
+
+from aws_s3 import refresh_s3_link, double_render
+from jinja2 import Template
+
+
+
+
 
 app = Flask(__name__)
 
+APP_START_TIME = time.time()
+FIRST_RUN = True
 ITEMS_PER_PAGE = 6
 
 
@@ -43,6 +54,7 @@ def filter_legal_by_status(data, status):
 
 @app.route('/')
 def home():
+
     # Get data from data source
     notices = get_all_notices()
     legal_cases = get_all_legal_matters()
@@ -100,6 +112,10 @@ def notice_detail(notice_id):
 def legal_detail(legal_id):
     legal_cases = get_all_legal_matters()
     case = next((case for case in legal_cases if case['legal_id'] == legal_id), None)
+
+    case['full_notice_u'] = refresh_s3_link(case['full_notice_u'])
+    case['full_notice_e'] = refresh_s3_link(case['full_notice_e'])
+
     if case:
         return render_template('legal_detail.html', case=case,
                                year=datetime.now().year)
