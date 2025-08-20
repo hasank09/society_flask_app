@@ -7,6 +7,35 @@ from aws_s3 import refresh_s3_link
 import re
 import pandas as pd
 
+
+def get_fiscal_year(date=None):
+    """
+    Get fiscal year (July to June) from a given date.
+    If no date is provided, uses current date.
+
+    Args:
+        date: datetime object (optional, defaults to current date)
+
+    Returns:
+        tuple: (start_year, end_year) representing the fiscal year
+
+    Example:
+        For date 2025-08-21, returns (2025, 2026)
+        For date 2025-05-15, returns (2024, 2025)
+    """
+    if date is None:
+        date = datetime.now()
+
+    if date.month >= 7:  # July to December
+        start_year = date.year
+        end_year = date.year + 1
+    else:  # January to June
+        start_year = date.year - 1
+        end_year = date.year
+
+    return start_year, end_year
+
+
 def get_text_dir(text):
     check = re.findall(r'[a-zA-Z]', text)
 
@@ -213,18 +242,18 @@ def get_monthly_totals():
 
 if __name__ == '__main__':
     # all_data = get_current_statement()
-    all_data = get_all_notices()
+    # all_data = get_all_notices()
     # all_data = get_all_legal_matters()
     # all_data = get_all_documents()
-    # all_data = get_maintenance_fund()
+    all_data = get_maintenance_fund()
 
     for data in all_data:
     #     print(data['legal_id'],data['full_notice_e'])
     #     print(data['file_url'])
         print(data)
-    df_data = pd.DataFrame(all_data)
-    print(df_data)
-    df_data.to_csv('notices.csv',index=False)
+    # df_data = pd.DataFrame(all_data)
+    # print(df_data)
+    # df_data.to_csv('notices.csv',index=False)
     # text1 = "المسلم کوآپریٹو ہاؤسنگ سوسائٹی کی نئی کمیٹی کی منظور شدہ قرارداد کا خلاصہ"
     # text2 =  "Housing Society Files Application for Probe into Ex-Management's Alleged Corruption"
     # test = get_text_dir(text1)

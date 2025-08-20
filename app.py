@@ -2,6 +2,7 @@ from flask import Flask
 from flask import render_template, request
 from socitey_data import get_all_notices, get_all_legal_matters, get_all_documents
 from socitey_data import get_society_fund, get_maintenance_fund, get_current_statement, get_monthly_totals
+from socitey_data import get_fiscal_year
 
 from datetime import datetime
 from math import ceil
@@ -135,7 +136,9 @@ def home():
                            current_statement=current_statement,
                            monthly_totals=monthly_totals,
                            current_month_year=datetime.now().strftime('%B %Y'),
-                           year=datetime.now().year)
+                           year=datetime.now().year,
+                           f_start=get_fiscal_year()[0],
+                           f_end=get_fiscal_year()[1])
 
 
 @app.route('/notice/<int:notice_id>')
