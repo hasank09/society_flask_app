@@ -1,17 +1,26 @@
 # db_config.py
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # PostgreSQL connection string
-# Replace with your actual database credentials
-DB_USER_PASSWORD = "cKj4adxL!MEJm9#CWeM"
-DATABASE_URL = f"postgresql://society_app:{DB_USER_PASSWORD}@localhost:5432/society_db"
-# DATABASE_URL = "postgresql://username:password@localhost:5432/society_db"
+# Use environment variable for Render PostgreSQL or fallback to local
+DATABASE_URL = os.environ.get(
+    'R_EXT_DB_URL',  # Render provides this automatically
+    'postgresql://society_app:cKj4adxL!MEJm9#CWeM@localhost:5432/society_db'  # Fallback for local development
+)
 
+# Handle potential SSL requirement for Render
+if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
+    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
 
 # Create SQLAlchemy engine
-engine = create_engine(DATABASE_URL)
+# Add SSL mode for production (Render requires SSL)
+if 'localhost' not in DATABASE_URL:
+    engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"})
+else:
+    engine = create_engine(DATABASE_URL)
 
 # Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

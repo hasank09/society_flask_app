@@ -5,6 +5,7 @@ from models import Notice, LegalMatter, Document, SocietyFund, MaintenanceFund, 
 from datetime import datetime
 from aws_s3 import refresh_s3_link
 import re
+import pandas as pd
 
 def get_text_dir(text):
     check = re.findall(r'[a-zA-Z]', text)
@@ -216,10 +217,14 @@ if __name__ == '__main__':
     # all_data = get_all_legal_matters()
     # all_data = get_all_documents()
     # all_data = get_maintenance_fund()
+
     for data in all_data:
     #     print(data['legal_id'],data['full_notice_e'])
     #     print(data['file_url'])
         print(data)
+    df_data = pd.DataFrame(all_data)
+    print(df_data)
+    df_data.to_csv('notices.csv',index=False)
     # text1 = "المسلم کوآپریٹو ہاؤسنگ سوسائٹی کی نئی کمیٹی کی منظور شدہ قرارداد کا خلاصہ"
     # text2 =  "Housing Society Files Application for Probe into Ex-Management's Alleged Corruption"
     # test = get_text_dir(text1)
