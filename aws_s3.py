@@ -64,3 +64,6 @@ if __name__ == '__main__':
     # template = Template(test)
     # result = template.render(get_s3url=double_render)
     # print(result)
+    # filename = 'documents/SbzuET6R4rzeQ79botXdLfEt9QQDlx.pdf'
+    # link = double_render(filename)
+    # print(link)
