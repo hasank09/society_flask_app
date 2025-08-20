@@ -6,8 +6,13 @@ from sqlalchemy.orm import sessionmaker
 
 # PostgreSQL connection string
 # Use environment variable for Render PostgreSQL or fallback to local
+# DATABASE_URL = os.environ.get(
+#     'R_EXT_DB_URL',  # Render provides this automatically
+#     'postgresql://society_app:cKj4adxL!MEJm9#CWeM@localhost:5432/society_db'  # Fallback for local development
+# )
+
 DATABASE_URL = os.environ.get(
-    'R_EXT_DB_URL',  # Render provides this automatically
+    'R_INT_DB_URL',  # Render provides this automatically
     'postgresql://society_app:cKj4adxL!MEJm9#CWeM@localhost:5432/society_db'  # Fallback for local development
 )
 
