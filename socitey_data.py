@@ -4,9 +4,19 @@ from db_config import engine
 from models import Notice, LegalMatter, Document, SocietyFund, MaintenanceFund, CurrentStatement
 from datetime import datetime
 from aws_s3 import refresh_s3_link
+import re
 
+def get_text_dir(text):
+    check = re.findall(r'[a-zA-Z]', text)
 
-
+    # print(len(text), len(check))
+    if check:
+        if len(check) >= len(text) /2 :
+            return "ltr"
+        else:
+            return "rtl"
+    else:
+        return "rtl"
 
 def clean_html_tags(text):
     tags = ['<p>', '</p>', '<br>', '<strong>', '</strong>', '<em>', '</em>', '<ul>', '</ul>', '<li>', '</li>',
@@ -37,6 +47,9 @@ def get_all_notices():
                 'full_notice_e': notice.full_notice_e,
                 'content':  clean_html_tags(notice.full_notice_u[:200]) + '...'
             }
+            # add text direction
+            notice_dict['title_dir'] = get_text_dir(notice_dict['title'])
+            notice_dict['description_dir'] = get_text_dir(notice_dict['description'])
 
             notices_list.append(notice_dict)
 
@@ -74,6 +87,10 @@ def get_all_legal_matters():
 
             # pre-rendering English Version
             legal_dict['full_notice_e'] = refresh_s3_link(legal_dict['full_notice_e'])
+
+            # add text direction
+            legal_dict['description_dir'] = get_text_dir(legal_dict['description'])
+            legal_dict['title_dir'] = get_text_dir(legal_dict['title'])
 
             legal_list.append(legal_dict)
 
@@ -188,13 +205,17 @@ def get_monthly_totals():
 
 if __name__ == '__main__':
     # all_data = get_current_statement()
-    # all_data = get_all_notices()
+    all_data = get_all_notices()
     # all_data = get_all_legal_matters()
     # all_data = get_all_documents()
-    all_data = get_maintenance_fund()
+    # all_data = get_maintenance_fund()
     for data in all_data:
     #     print(data['legal_id'],data['full_notice_e'])
     #     print(data['file_url'])
         print(data)
-    print(all_data[0]['month'].year,all_data[-1]['month'].year)
+    # text1 = "المسلم کوآپریٹو ہاؤسنگ سوسائٹی کی نئی کمیٹی کی منظور شدہ قرارداد کا خلاصہ"
+    # text2 =  "Housing Society Files Application for Probe into Ex-Management's Alleged Corruption"
+    # test = get_text_dir(text1)
+    #
+    # print(test)
 
