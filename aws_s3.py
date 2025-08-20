@@ -23,7 +23,7 @@ def s3_client():
 def double_render(text):
     # print("Testing"*100)
     # filename = 'documents/qHiJSwc1L6A3bRfgbrmfRokeTo71lP.pdf'
-    if 'documents' in text:
+    if 'documents' in text or 'images' in text:
         filename = text
     else:
         return text
@@ -48,7 +48,7 @@ def refresh_s3_link(html_template):
 
 
 if __name__ == '__main__':
-    test = """
+    test_document = """
                     {{double_render}} >>
                       <p class="card-text large-text-e">
                             decided.<br>
@@ -59,7 +59,20 @@ if __name__ == '__main__':
                             <a href="{{get_s3url('documents/uvJ93NHyMyuw9nyjzJqbtWovP5n2tb.pdf')}}">Download Reference Document</a>
                         </p>
     """
-    rendered_text = refresh_s3_link(test)
+
+    test_image = """
+                    {{double_render}} >>
+                      <p class="card-text large-text-e">
+                            decided.<br>
+                            The new committee assum decision-making while disclaiming accountability for past violations by the former management, prioritizing adherence to the law and society bylaws
+                            {{get_s3url('images/rq1gtnZ85WrCFflAlx5wtVqfgzzps3.png')}}
+                        </p>
+                        <p class="card-text">
+                            <a href="{{get_s3url('images/1TkQG7lybyUSJbzniD68CGB6tLbKWt.png')}}">Download Reference Document</a>
+                        </p>
+    """
+
+    rendered_text = refresh_s3_link(test_image)
     print(rendered_text)
     # template = Template(test)
     # result = template.render(get_s3url=double_render)

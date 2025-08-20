@@ -47,6 +47,13 @@ def get_all_notices():
                 'full_notice_e': notice.full_notice_e,
                 'content':  clean_html_tags(notice.full_notice_u[:200]) + '...'
             }
+
+            # pre-rendering Urdu Version
+            notice_dict['full_notice_u'] = refresh_s3_link(notice_dict['full_notice_u'])
+
+            # pre-rendering English Version
+            notice_dict['full_notice_e'] = refresh_s3_link(notice_dict['full_notice_e'])
+
             # add text direction
             notice_dict['title_dir'] = get_text_dir(notice_dict['title'])
             notice_dict['description_dir'] = get_text_dir(notice_dict['description'])
